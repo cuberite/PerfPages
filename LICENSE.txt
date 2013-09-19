@@ -1,3 +1,9 @@
+Note that this plugin consists of three parts. See LICENSE_jquery.txt
+and LICENSE_flot.txt for the licenses for the jQuery and flot components.
+
+The Lua part of this plugin is public domain, as detailed by the following
+license:
+
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
