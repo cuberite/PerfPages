@@ -72,7 +72,7 @@ World tick duration (msec):
 <div id="tickgraph" class="graph"></div>
 </p>
 
-<script>
+<script language="javascript" type="text/javascript">
 ]];
 
 	local function GetSeries(a_Series, a_CurValue, a_MaxValues)
@@ -125,16 +125,7 @@ $.plot(
 </script>
 ]];
 
-	local res = "<script>\n" .. g_JS .. "\n</script>\n" .. Contents;
-	
-	-- DEBUG: write to file:
-	local f = io.open("perf.html", "wb");
-	if (f ~= nil) then
-		f:write(res);
-		f:close();
-	end
-	
-	return res;
+	return "<script language=\"javascript\" type=\"text/javascript\">\n" .. g_JS .. "\n</script>\n" .. Contents;
 end
 
 
