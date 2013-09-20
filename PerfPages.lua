@@ -122,6 +122,8 @@ $.plot(
 	}
 );
 
+// Reload each 5 seconds:
+setTimeout("location.reload(true)", 5000);
 </script>
 ]];
 
