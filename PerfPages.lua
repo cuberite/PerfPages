@@ -143,7 +143,7 @@ function OnServerTick(a_Dt)
 		return;
 	end
 	g_CurrentServerTickNum = 1;
-	g_Ram[g_CurValue] = cWebAdmin:GetMemoryUsage();
+	g_Ram[g_CurValue] = cWebAdmin:GetMemoryUsage() / 1024;  -- KiB -> MiB
 	
 	-- Rather than querying cRoot for the total number of chunks (which could deadlock),
 	-- use the values that have been cached in OnWorldTick()
