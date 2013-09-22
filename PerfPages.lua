@@ -43,11 +43,11 @@ end
 
 
 g_CurValue = 0;
-g_MaxValues = 300;  -- 60 seconds
+g_MaxValues = 300;  -- 5 minutes
 g_Ram = {};
 g_NumChunks = {};
 g_CurTick = 0;
-g_MaxTicks = 60 * 20;  -- 60 seconds
+g_MaxTicks = 300 * 20;  -- 5 minutes
 g_WorldTick = {};  -- Dictionary of per-world tick durations and the current tick positions
 
 InitializeArray(g_Ram, g_MaxValues);
