@@ -64,7 +64,7 @@ function HandleHttpRequest(Request)
 </style>
 
 <p>
-Memory usage (MiB) and the number of loaded chunks:
+Memory usage / MiB (left) and the number of loaded chunks (right):
 <div id="ramgraph" class="graph"></div>
 </p>
 <p>
