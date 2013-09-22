@@ -43,7 +43,7 @@ end
 
 
 g_CurValue = 0;
-g_MaxValues = 60;  -- 60 seconds
+g_MaxValues = 300;  -- 60 seconds
 g_Ram = {};
 g_NumChunks = {};
 g_CurTick = 0;
