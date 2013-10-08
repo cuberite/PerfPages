@@ -2,6 +2,16 @@
 -- PerfPages.lua
 
 -- Implements the performance-pages in the WebAdmin
+-- This file is self-enclosed, it doesn't need any other Lua file to function
+--   so it can be dropped into other plugins (together with the JS files)
+
+
+
+
+-- Settings: --
+---------------
+g_Minutes = 5;  -- Number of minutes of history to keep
+
 
 
 
@@ -43,14 +53,16 @@ end
 
 
 g_CurValue = 0;
-g_MaxValues = 300;  -- 5 minutes
-g_Ram = {};
+g_MaxValues = g_Minutes * 60;
+g_RamPhys = {};
+g_RamVirt = {};
 g_NumChunks = {};
 g_CurTick = 0;
-g_MaxTicks = 300 * 20;  -- 5 minutes
+g_MaxTicks = g_Minutes * 60 * 20;
 g_WorldTick = {};  -- Dictionary of per-world tick durations and the current tick positions
 
-InitializeArray(g_Ram, g_MaxValues);
+InitializeArray(g_RamPhys, g_MaxValues);
+InitializeArray(g_RamVirt, g_MaxValues);
 InitializeArray(g_NumChunks, g_MaxValues);
 
 function HandleHttpRequest(Request)
@@ -64,7 +76,7 @@ function HandleHttpRequest(Request)
 </style>
 
 <p>
-Memory usage / MiB (left/yellow) and the number of loaded chunks (right/blue):
+Memory usage / MiB (left/yellow) and the number of loaded chunks (right/red):
 <div id="ramgraph" class="graph"></div>
 </p>
 <p>
@@ -89,7 +101,8 @@ World tick duration (msec):
 		return Data;
 	end
 	
-	local Data = "var memdata =\n[\n" .. GetSeries(g_Ram, g_CurValue, g_MaxValues);
+	local Data = "var ramphysdata =\n[\n" .. GetSeries(g_RamPhys, g_CurValue, g_MaxValues);
+	Data = Data .. "];\n\n\nvar ramvirtdata =\n[\n" .. GetSeries(g_RamVirt, g_CurValue, g_MaxValues);
 	Data = Data .. "];\n\n\nvar chunkdata =\n[\n" .. GetSeries(g_NumChunks, g_CurValue, g_MaxValues);
 	
 	Data = Data .. "];\n\n\nvar tickseries = [\n";
@@ -102,7 +115,8 @@ World tick duration (msec):
 $.plot(
 	$("#ramgraph"),
 	[
-		{ data: memdata, },
+		{ data: ramphysdata, yaxis: 1},
+		{ data: ramvirtdata, yaxis: 1},
 		{ data: chunkdata, yaxis: 2 },
 	],
 	{
@@ -143,7 +157,8 @@ function OnServerTick(a_Dt)
 		return;
 	end
 	g_CurrentServerTickNum = 1;
-	g_Ram[g_CurValue] = cWebAdmin:GetMemoryUsage() / 1024;  -- KiB -> MiB
+	g_RamPhys[g_CurValue] = cRoot:GetPhysicalRAMUsage() / 1024;  -- KiB -> MiB
+	g_RamVirt[g_CurValue] = cRoot:GetVirtualRAMUsage()  / 1024;  -- KiB -> MiB
 	
 	-- Rather than querying cRoot for the total number of chunks (which could deadlock),
 	-- use the values that have been cached in OnWorldTick()
