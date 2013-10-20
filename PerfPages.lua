@@ -89,16 +89,16 @@ World tick duration (msec):
 
 	local function GetSeries(a_Series, a_CurValue, a_MaxValues)
 		local idx = -a_MaxValues;
-		local Data = "";
+		local Data = {};
 		for i = a_CurValue + 1, a_MaxValues do
-			Data = Data .. string.format("[%d, %d],\n", idx, a_Series[i]);
+			table.insert(Data, string.format("[%d, %d]", idx, a_Series[i]));
 			idx = idx + 1;
 		end
 		for i = 1, a_CurValue - 1 do
-			Data = Data .. string.format("[%d, %d],\n", idx, a_Series[i]);
+			table.insert(Data, string.format("[%d, %d]", idx, a_Series[i]));
 			idx = idx + 1;
 		end
-		return Data;
+		return table.concat(Data, ",\n");
 	end
 	
 	local Data = "var ramphysdata =\n[\n" .. GetSeries(g_RamPhys, g_CurValue, g_MaxValues);
