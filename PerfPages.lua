@@ -42,9 +42,20 @@ end
 
 
 --- Initializes the given table to contain g_MaxValues zeroes in the array part
-function InitializeArray(a_Var, a_Count)
+function InitializeArrayNum(a_Var, a_Count)
 	for i = 1, a_Count do
 		a_Var[i] = 0;
+	end
+end
+
+
+
+
+
+--- Initializes the given table to contain g_MaxValues empty strings in the array part
+function InitializeArrayStr(a_Var, a_Count)
+	for i = 1, a_Count do
+		a_Var[i] = "";
 	end
 end
 
@@ -60,18 +71,20 @@ g_NumChunks = {};
 g_CurTick = 0;
 g_MaxTicks = g_Minutes * 60 * 20;
 g_WorldTick = {};  -- Dictionary of per-world tick durations and the current tick positions
+g_Workspace = {};  -- Pre-allocated array used for concats (GetSeries()) to avoid reallocation in each tick
 
-InitializeArray(g_RamPhys, g_MaxValues);
-InitializeArray(g_RamVirt, g_MaxValues);
-InitializeArray(g_NumChunks, g_MaxValues);
+InitializeArrayNum(g_RamPhys, g_MaxValues);
+InitializeArrayNum(g_RamVirt, g_MaxValues);
+InitializeArrayNum(g_NumChunks, g_MaxValues);
+InitializeArrayStr(g_Workspace, 2 * g_MaxTicks);
 
 function HandleHttpRequest(Request)
 	local Contents = [[
 <style>
 .graph
 {
-	width: 600px;
-	height: 400px;
+	width: 700px;
+	height: 300px;
 }
 </style>
 
@@ -87,18 +100,23 @@ World tick duration (msec):
 <script language="javascript" type="text/javascript">
 ]];
 
+	--- Returns the string representing the given series; uses and trashes g_Workspace for optimizing the concats
 	local function GetSeries(a_Series, a_CurValue, a_MaxValues)
 		local idx = -a_MaxValues;
-		local Data = {};
+		local idx2 = 1;
+		local Data = g_Workspace;  -- using a global buffer for the concats - don't want to allocate a new table on each call
+		local fmt = string.format;
 		for i = a_CurValue + 1, a_MaxValues do
-			table.insert(Data, string.format("[%d, %d]", idx, a_Series[i]));
+			Data[idx2] = fmt("[%d, %d]", idx, a_Series[i]);
+			idx2 = idx2 + 1;
 			idx = idx + 1;
 		end
 		for i = 1, a_CurValue - 1 do
-			table.insert(Data, string.format("[%d, %d]", idx, a_Series[i]));
+			Data[idx2] = fmt("[%d, %d]", idx, a_Series[i]);
+			idx2 = idx2 + 1;
 			idx = idx + 1;
 		end
-		return table.concat(Data, ",\n");
+		return table.concat(Data, ",\n", 1, a_MaxValues - 1);
 	end
 	
 	local Data = "var ramphysdata =\n[\n" .. GetSeries(g_RamPhys, g_CurValue, g_MaxValues);
@@ -183,7 +201,7 @@ function OnWorldTick(a_World, a_Dt)
 	if (WorldTick == nil) then
 		-- The world data doesn't exist yet, create anew, initialize to all zeroes:
 		WorldTick = {};
-		InitializeArray(WorldTick, g_MaxTicks);
+		InitializeArrayNum(WorldTick, g_MaxTicks);
 		g_WorldTick[a_World:GetName()] = WorldTick;
 		WorldTick.CurTick = 1;
 	end
