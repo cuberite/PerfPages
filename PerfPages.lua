@@ -151,6 +151,11 @@ $.plot(
 	tickseries,
 	{
 		lines: { show: true},
+		grid: {
+			markings: [
+				{ color: "#ffcfcf", yaxis: {from: 50} },
+			],
+		},
 	}
 );
 
@@ -196,7 +201,7 @@ end
 
 
 
-function OnWorldTick(a_World, a_Dt)
+function OnWorldTick(a_World, a_Dt, a_TickDuration)
 	local WorldTick = g_WorldTick[a_World:GetName()];
 	if (WorldTick == nil) then
 		-- The world data doesn't exist yet, create anew, initialize to all zeroes:
@@ -205,7 +210,7 @@ function OnWorldTick(a_World, a_Dt)
 		g_WorldTick[a_World:GetName()] = WorldTick;
 		WorldTick.CurTick = 1;
 	end
-	WorldTick[WorldTick.CurTick] = a_Dt;
+	WorldTick[WorldTick.CurTick] = a_TickDuration;
 	WorldTick.NumChunks = a_World:GetNumChunks();
 	WorldTick.CurTick = WorldTick.CurTick + 1;
 	if (WorldTick.CurTick > g_MaxTicks) then
